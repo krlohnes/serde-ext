@@ -106,7 +106,11 @@ impl Parse for Input {
 }
 
 fn parse_variant(enum_variant: &EnumVariant) -> Result<Variant, SynError> {
-    if !enum_variant.fields.is_unit() {
+    if !enum_variant.fields.is_unit()
+        && ((!enum_variant.skip_serializing.is_some_and(|v| v)
+            && !enum_variant.skip_deserializing.is_some_and(|v| v))
+            || !enum_variant.skip.is_some_and(|v| v))
+    {
         return Err(SynError::new(
             enum_variant.ident.span(),
             "must be a unit variant",
